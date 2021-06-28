@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link href="{{ url_for('static',filename='web/css/common.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ url_for('static',filename='web/css/style.css') }}" rel="stylesheet" type="text/css"/>
+    <script src="{{ url_for('static',filename='web/js/jquery-1.8.3.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static',filename='web/js/jquery.SuperSlide.2.1.1.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static',filename='web/js/common_js.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static',filename='web/js/footer.js') }}" type="text/javascript"></script>
+    <title>{{ title }}</title>
+</head>
+<style type="text/css">
+    .taobao{
+	content: url("{{ url_for('static',filename='web/images/taobao.png') }}");
+	margin-right: 2px;
+}.jingdong{
+	content: url("{{ url_for('static',filename='web/images/jingdong.png') }}");margin-right: 2px;
+}
+.suning{
+	content: url("{{ url_for('static',filename='web/images/suning.png') }}");margin-right: 2px;
+}
+</style>
+<script type="text/javascript" charset="UTF-8">
+    function infonav_more_down(index) {
+        var inHeight = ($("div[class='p_f_name infonav_hidden']").eq(index).find('p').length) * 30;//先设置了P的高度，然后计算所有P的高度
+        if (inHeight > 60) {
+            $("div[class='p_f_name infonav_hidden']").eq(index).animate({height: inHeight});
+            $(".infonav_more").eq(index).replaceWith('<p class="infonav_more"><a class="more"  onclick="infonav_more_up(' + index + ');return false;" href="javascript:">收起<em class="pulldown"></em></a></p>');
+        } else {
+            return false;
+        }
+    }
+
+    function infonav_more_up(index) {
+        var infonav_height = 85;
+        $("div[class='p_f_name infonav_hidden']").eq(index).animate({height: infonav_height});
+        $(".infonav_more").eq(index).replaceWith('<p class="infonav_more"> <a class="more" onclick="infonav_more_down(' + index + ');return false;" href="javascript:">更多<em class="pullup"></em></a></p>');
+    }
+
+    function onclick(event) {
+        info_more_down();
+        return false;
+    }
+</script>
+
+<body>
+
+<head>
+    <div id="header_top">
+        <div id="header" class="header page_style">
+            <div class="logo"><a href="/"><img
+                    src="{{ url_for('static',filename='web/images/logo.png') }}"/></a></div>
+            <div class="Search">
+                <div class="search_list">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </div>
+                <div class="clear search_cur">
+                    <input name="searchName" id="searchName" class="search_box" type="text">
+                    <input name="searchBtn" type="submit" value="搜 索" class="Search_btn"/>
+                </div>
+                <div class="clear hotword">热 门 搜 索：<a>{{keywords[0]}}</a>&nbsp;&nbsp;&nbsp;<a>{{keywords[1]}}</a>&nbsp;&nbsp;&nbsp;<a>{{keywords[2]}}</a>&nbsp;&nbsp;&nbsp;<a>{{keywords[3]}}</a>&nbsp;&nbsp;&nbsp;<a>{{keywords[4]}}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--    <div class="" id="Navigation">-->
+    <div class="Navigation" id="Navigation">
+        <ul class="Navigation">
+            <li><a href="/max">大屏数据可视化</a></li>
+            <li><a href="http://47.102.217.149/">友情链接：猪肉佬</a></li>
+        </ul>
+    </div>
+    <script>$("#Navigation").slide({titCell: ".Navigation_name li", trigger: "click"});</script>
+    </div>
+</head>
+<!--产品列表样式-->
+<div class="Inside_pages">
+    <!--位置-->
+    <div id="Filter_style">
+        <div class="Location_link"><a>当前的搜索内容：</a><a id="keyword"></a></div>
+        <!--条件筛选样式-->
+        <div class="Filter" id="Filter">
+            <div class="Filter_list clearfix">
+                <div class="Filter_title"><span>来源：</span></div>
+                <div class="p_f_name">
+                    <div class="Filter_Entire"><a href="#" class="Completeon">全部</a></div>
+                    <a title="淘宝网"><img src="{{url_for('static',filename='web/images/taobao.png')}}" class="taobao"/>淘宝<input title='淘宝' type="checkbox"
+                                                                                         id='cbtb' value='0'></a>
+                    <a title="京东商城"><img src="{{url_for('static',filename='web/images/jingdong.png')}}" class="jingdong"/>京东<input title='京东' type="checkbox"
+                                                                                              id='cbjd' value='0'></a>
+                    <a title="苏宁易购"><img src="{{url_for('static',filename='web/images/suning.png')}}" class="suning"/>苏宁易购<input title='苏宁' type="checkbox"
+                                                                                            id='cbsn' value='0'></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--产品列表样式-->
+    <div id="Sorted" class="">
+        <div class="Sorted">
+            <div class="Sorted_style">
+                <a id='default' style="width: 50px" class="on">默认排序<i class="iconfont icon-fold"></i></a>
+                <a id='desc' style="width: 50px">价格降序<i class="iconfont icon-fold"></i></a>
+                <a id='asc' style="width: 50px">价格升序<i class="iconfont icon-fold"></i></a>
+            </div>
+        </div>
+        <div class="p_list  clearfix">
+            <div class="loading" style="display:none;width: 1200px;height:300px;text-align: center;vertical-align: center">
+            <div class="loadbox" ><img  style="height: 200px;width: 200px" src="{{ url_for('static',filename='images/loading.gif') }}"></div>
+            </div>
+            <ul>
+
+            </ul>
+            <div class="Paging">
+                <div class="Pagination" style="text-align: center">
+                    <a href="#" id="last_page" class="pn-prev disabled">&lt;上一页</a>
+                    <a href="#" id="current_page" class="on">1</a>
+                    <a href="#" id="page_count">总页数：1</a>
+                    <a href="#" id="next_page">下一页&gt;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--右侧菜单栏购物车样式-->
+    <div class="fixedBox">
+        <ul class="fixedBoxList">
+                        <li class="fixeBoxLi code cart_bd " style="display:block;" id="cartboxs"><span class="fixeBoxSpan"></span>
+                <strong>微信</strong>
+                <div class="cartBox">
+                    <div class="bjfff"></div>
+                    <div class="QR_code">
+                        <p><img src="{{ url_for('static',filename='images/gxg.png') }}" width="180px" height="180px"/></p>
+                        <p>微信扫一扫，赞助我</p>
+                    </div>
+                </div>
+            </li>
+            <li class="fixeBoxLi code cart_bd " style="display:block;" id="cartboxs"><span class="fixeBoxSpan"></span>
+                <strong>赞助</strong>
+                <div class="cartBox">
+                    <div class="bjfff"></div>
+                    <div class="QR_code">
+                        <p><img src="{{ url_for('static',filename='images/zanzhu.png') }}" width="180px" height="180px"/></p>
+                        <p>小手扫一扫，赞助我们</p>
+                    </div>
+                </div>
+            </li>
+            <li class="fixeBoxLi BackToTop"><span class="fixeBoxSpan"></span> <strong>返回顶部</strong></li>
+        </ul>
+    </div>
+    <script>
+    //chushihua##000940
+    function get_datas(keyword = "显卡",page=1) {
+        $.ajaxSettings.timeout='5000';
+        $("#current_page").html(page)
+        $(".loading").show()
+        $('.p_list ul').html("");
+        var sorted=$('div.Sorted_style a.on').attr('id');
+        var temp='';
+        if (document.getElementById('cbtb').value==='1'){
+            temp+='淘宝_'
+        }
+        if (document.getElementById('cbjd').value==='1'){
+            temp+='京东_'
+        }
+        if (document.getElementById('cbsn').value==='1'){
+            temp+='苏宁'
+        }
+        $.get('/api/t_v1/get_api_paging', {'limit': 10, 'keyword': keyword,'page':page,'sites':temp,'sorted':sorted}, function (resp) {
+            $(".loading").hide();
+            keywordall=keyword;
+            $('#keyword').html(keywordall)
+            var datacount = parseInt(resp.count / 10);
+            datacountall = datacount;
+            $('#page_count').html("总页数："+datacount);
+            for (var i = 0; i < resp.data.length; i++) {
+                if ('淘宝网' == resp.data[i].site_source) {
+                    var site = 'taobao'
+                } else if ('苏宁易购' == resp.data[i].site_source) {
+                    var site = 'suning'
+                } else {
+                    var site = 'jingdong'
+                }
+                var discountbox='<li class="gl-item"><em class="icon_special tejia"></em>\n<div class="Borders">\n' +
+                    '            <div class="img"><a href="' + resp.data[i].source_url + '"><img src="' + resp.data[i].img_url + '"\n' +
+                    '            style="width:220px;height:220px"></a></div>\n' +
+                    '            <div class="name"><a href="' + resp.data[i].source_url + '" title="' + resp.data[i].title + '">' + resp.data[i].title + '</a>\n' +
+                    '            </div><div class="Shop_name"><a href="#">' + resp.data[i].shop_name + '</a></div>\n' +
+                    '            <div class="Shop_name"><a><img src="{{ url_for('static',filename='web/') }}images/' + site + '.png" class="' + site + '"/>' + resp.data[i].site_source + '</a></div>\n' +
+                    '            <div class="yushou"><div class="yushou-p fl">¥<strong>' + resp.data[i].promotion_price + '</strong></div>\n' +
+                    '            <div class="fl sold">\n' +
+                    '            <div><del class="orig-price">¥' + resp.data[i].current_price + '</del>\n</div>\n' +
+                    '            </div><a href="' + resp.data[i].source_url + '"><div class="fr sold-go">去购买</div></a></div></div></li>'
+                var nodiscountbox='<li class="gl-item"><em class="icon_special tejia"></em>\n<div class="Borders">\n' +
+                    '            <div class="img"><a href="' + resp.data[i].source_url + '"><img src="' + resp.data[i].img_url + '"\n' +
+                    '            style="width:220px;height:220px"></a></div>\n' +
+                    '            <div class="name"><a href="' + resp.data[i].source_url + '" title="' + resp.data[i].title + '">' + resp.data[i].title + '</a>\n' +
+                    '            </div><div class="Shop_name"><a href="#">' + resp.data[i].shop_name + '</a></div>\n' +
+                    '            <div class="Shop_name"><a><img src="{{ url_for('static',filename='web/') }}images/' + site + '.png" class="' + site + '"/>' + resp.data[i].site_source + '</a></div>\n' +
+                    '            <div class="yushou"><div class="yushou-p fl" style="color:black">¥<strong style="color:black">' + resp.data[i].promotion_price + '</strong></div>\n' +
+                    '            <a href="' + resp.data[i].source_url + '"><div class="fr sold-go">去购买</div></a></div></div></li>'
+                if (resp.data[i].promotion_price===resp.data[i].current_price){
+                    $('.p_list ul').append(nodiscountbox)
+                }else{
+                    $('.p_list ul').append(discountbox)
+                }
+
+            }
+        }).error(function (xhr,status,info) {
+
+            get_datas(keyword,page)
+        });
+    }
+    </script>
+    <script src="{{url_for('static',filename='web/js/one.js')}}" type="text/javascript"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,682 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+    <script type="text/javascript" src="{{ url_for('static',filename="js/jquery.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename="js/echarts.min.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename="js/js.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename="js/jquery.liMarquee.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename="js/jquery.cxselect.min.js") }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/comon0.css') }}">
+</head>
+<style>
+    .option {
+        /*用div的样式代替select的样式*/
+        width: 140px;
+        height: 40px;
+        /*border-radius: 5px;*/
+        /*盒子阴影修饰作用,自己随意*/
+        /* box-shadow: 0 0 5px #ccc;*/
+        border: 1px solid #cccccc;
+        position: relative;
+        background-color: rgba(255, 255, 255, 0);
+    }
+    option{
+        background-color: rgba(255, 255, 255, 0);
+    }
+    .option select {
+        background-color: rgba(255, 255, 255, 0);
+        color: #ffffff;
+        /*清除select的边框样式*/
+        border: none;
+        /*清除select聚焦时候的边框颜色*/
+        outline: none;
+        /*将select的宽高等于div的宽高*/
+        width: 100%;
+        height: 40px;
+        line-height: 40px;
+        /*隐藏select的下拉图标*/
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        /*通过padding-left的值让文字居中*/
+        padding-left: 20px;
+    }
+
+    /*使用伪类给select添加自己想用的图标*/
+    .option:after {
+        content: "";
+        width: 14px;
+        height: 8px;
+        background: url({{url_for('static',filename='images/07.png')}}) no-repeat center;
+        /*通过定位将图标放在合适的位置*/
+        position: absolute;
+        right: 20px;
+        top: 41%;
+        /*给自定义的图标实现点击下来功能*/
+        pointer-events: none;
+    }
+</style>
+<body>
+<div style="background:#000d4a url({{ url_for('static',filename='images/bg.jpg') }}) center top;">
+    <div class="loading">
+        <div class="loadbox"><img src="{{ url_for('static',filename='images/loading.gif') }}"> 页面加载中...</div>
+    </div>
+    <div class="back"></div>
+    <div class="head">
+        <div class="weather"><span id="showTime"></span></div>
+        <h1>{{ title }}</h1>
+    </div>
+    <script>
+        var t = null;
+        t = setTimeout(time, 1000);//開始运行
+        function time() {
+            clearTimeout(t);//清除定时器
+            dt = new Date();
+            var y = dt.getFullYear();
+            var mt = dt.getMonth() + 1;
+            var day = dt.getDate();
+            var h = dt.getHours();//获取时
+            var m = dt.getMinutes();//获取分
+            var s = dt.getSeconds();//获取秒
+            document.getElementById("showTime").innerHTML = y + "年" + mt + "月" + day + "日" + h + "时" + m + "分" + s + "秒";
+            t = setTimeout(time, 1000); //设定定时器，循环运行
+        }
+
+    </script>
+    <div class="mainbox">
+        <ul class="clearfix">
+            <li>
+                <div class="boxall" style="height:100px;">
+                    <div class="alltitle">型号选择</div>
+                    <div class="option">
+                        <select id="gmodel" name="mmodel" onchange="monchange();">
+                        </select>
+                    </div>
+                    <div class="navboxall" id="echart5"></div>
+                </div>
+                <div class="boxall" style="height:560px;">
+                    <div class="alltitle">最新价格</div>
+                    <div class="navboxall">
+                        <div class="wraptit">
+                            <span>平台</span><span>金额</span><span>型号</span><span>时间</span>
+                        </div>
+                        <div class="wrap">
+                            <ul id="ls_my">
+
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="boxall" style="height:260px;">
+                    <div class="alltitle">没啥用的搜索</div>
+                    <div class="navboxall" id="echart1"></div>
+                </div>
+            </li>
+            <li>
+                <div class="boxall" style="height:230px">
+                    <div class="clearfix navboxall" style="height: 100%">
+                        <div class="pulll_left num">
+                            <div class="numbt">3070平均价<span>(单位：元)</span></div>
+                            <div class="numtxt" id="min_price">19382721</div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="boxall" style="height:340px">
+                    <div class="alltitle" id="alltilea">3070最新历史价格</div>
+                    <div class="navboxall" id="echart3"></div>
+                </div>
+                <div class="boxall" style="height:350px">
+                    <div class="alltitle">TensorFlow预测数据图</div>
+                    <div class="navboxall" id="echart4"></div>
+                </div>
+            </li>
+            <li>
+                <div class="boxall" style="height:300px">
+                    <div class="alltitle">平台最高价排行</div>
+                    <div class="navboxall">
+                        <table class="table1" width="100%" border="0" cellspacing="0" cellpadding="0" id="max_nav">
+                            <tbody>
+                            <tr >
+                                <th scope="col">排名</th>
+                                <th scope="col">平台</th>
+                                <th scope="col">型号</th>
+                                <th scope="col">价格</th>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="boxall" style="height: 300px">
+                    <div class="alltitle">平台最低价排行</div>
+                    <div class="navboxall">
+                        <table class="table1" width="100%" border="0" cellspacing="0" cellpadding="0" id="min_nav">
+                            <tbody>
+                            <tr>
+                                <th scope="col">排名</th>
+                                <th scope="col">平台</th>
+                                <th scope="col">型号</th>
+                                <th scope="col">价格</th>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+                <div class="boxall" style="height:320px">
+                    <div class="alltitle">预测模型数据图</div>
+                    <div class="navboxall" id="echart2">
+
+                    </div>
+                </div>
+            </li>
+        </ul>
+
+    </div>
+</div>
+
+<script>
+     function monchange(){
+            $('#alltilea').html($('#gmodel  option:selected').val()+'最新历史价格')
+            $('.numbt').html($('#gmodel  option:selected').val()+'平均价<span>(单位：元)</span>')
+            $('#max_nav>tr').remove();
+            $('#min_nav>tr').remove();
+             //最高价排行
+            get_max($('#gmodel  option:selected').val());
+            //最低价排行
+            get_min($('#gmodel  option:selected').val());
+            $.get('/api/t_v1/get_model_avg',{'modelname':$('#gmodel  option:selected').val()},function (resp) {
+                $('#min_price').html(resp.avg_price)
+            })
+           $.get('/api/t_v1/get_historyPrices',{'modelname':$('#gmodel  option:selected').val()},function (resp) {
+            // 基于准备好的dom，初始化echarts实例
+            var respall = 0;
+            var myChart = echarts.init(document.getElementById('echart3'));
+            option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        lineStyle: {
+                            color: '#57617B'
+                        }
+                    }
+                },
+                legend: {
+
+                    //icon: 'vertical',
+                    data:resp.names,
+                    //align: 'center',
+                    // right: '35%',
+                    top: '0',
+                    textStyle: {
+                        color: "#fff"
+                    },
+                    // itemWidth: 15,
+                    // itemHeight: 15,
+                    itemGap: 20,
+                },
+                grid: {
+                    left: '0',
+                    right: '20',
+                    top: '10',
+                    bottom: '20',
+                    containLabel: true
+                },
+                xAxis: [{
+                    type: 'category',
+                    boundaryGap: false,
+                    axisLabel: {
+                        show: true,
+                        textStyle: {
+                            color: 'rgba(255,255,255,.6)'
+                        }
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255,255,255,.1)'
+                        }
+                    },
+                    data: resp.times[1]
+                }, {}],
+                yAxis: [{
+                    axisLabel: {
+                        show: true,
+                        textStyle: {
+                            color: 'rgba(255,255,255,.6)'
+                        }
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255,255,255,.1)'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(255,255,255,.1)'
+                        }
+                    }
+                }],
+                series: [{
+                    name: resp.names[0],
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 5,
+                    showSymbol: false,
+                    lineStyle: {
+                        normal: {
+                            width: 2
+                        }
+                    },
+                    areaStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgba(24, 163, 64, 0.3)'
+                            }, {
+                                offset: 0.8,
+                                color: 'rgba(24, 163, 64, 0)'
+                            }], false),
+                            shadowColor: 'rgba(0, 0, 0, 0.1)',
+                            shadowBlur: 10
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#cdba00',
+                            borderColor: 'rgba(137,189,2,0.27)',
+                            borderWidth: 24
+                        }
+                    },
+                    data: resp.datas[0]
+                }, {
+                    name: resp.names[1],
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 5,
+                    showSymbol: false,
+                    lineStyle: {
+                        normal: {
+                            width: 2
+                        }
+                    },
+                    areaStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgba(39, 122,206, 0.3)'
+                            }, {
+                                offset: 0.8,
+                                color: 'rgba(39, 122,206, 0)'
+                            }], false),
+                            shadowColor: 'rgba(0, 0, 0, 0.1)',
+                            shadowBlur: 10
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#277ace',
+                            borderColor: 'rgba(0,136,212,0.2)',
+                            borderWidth: 12
+                        }
+                    },
+                    data: resp.datas[1]
+                }]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+            window.addEventListener("resize", function () {
+                myChart.resize();
+            });
+        });
+        }
+     function get_max(modelname='3070'){
+         $.get('/api/t_v1/get_model_max',{'modelname':modelname},function (resp) {
+             for(var i =0;i<resp.datas.length;i++){
+                 $('#max_nav').append(' <tr>\n' +
+                     '                                <td><span>'+(Number(i)+1)+'</span></td>\n' +
+                     '                                <td>'+resp.datas[i][0]+'</td>\n' +
+                     '                                <td>'+resp.datas[i][1]+'<br></td>\n' +
+                     '                                <td>'+resp.datas[i][2]+'<br></td>\n' +
+                     '                            </tr>')
+             }
+         });
+     }
+     function get_min(modelname='3070'){
+         $.get('/api/t_v1/get_model_min',{'modelname':modelname},function (resp) {
+             for(var i =0;i<resp.datas.length;i++){
+                 $('#min_nav').append(' <tr>\n' +
+                     '                                <td><span>'+(Number(i)+1)+'</span></td>\n' +
+                     '                                <td>'+resp.datas[i][0]+'</td>\n' +
+                     '                                <td>'+resp.datas[i][1]+'<br></td>\n' +
+                     '                                <td>'+resp.datas[i][2]+'<br></td>\n' +
+                     '                            </tr>')
+             }
+         });
+     }
+    $(function () {
+        $("#echart1").html("<a href='/'><img style='height: 100%;width: 100%;' src=\"{{ url_for('static',filename='images/logo.png') }}\"></a>")
+        //获取预测价格
+        $.post('/api/t_v1/get_tens_model_infos',function (resp) {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('echart4'));
+
+            option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        lineStyle: {
+                            color: '#57617B'
+                        }
+                    }
+                },
+                legend: {
+
+                    //icon: 'vertical',
+                    data: ['真实价', '预测价'],
+                    //align: 'center',
+                    // right: '35%',
+                    top: '0',
+                    textStyle: {
+                        color: "#fff"
+                    },
+                    // itemWidth: 15,
+                    // itemHeight: 15,
+                    itemGap: 20,
+                },
+                grid: {
+                    left: '0',
+                    right: '20',
+                    top: '10',
+                    bottom: '20',
+                    containLabel: true
+                },
+                xAxis: [{
+                    type: 'category',
+                    boundaryGap: false,
+                    axisLabel: {
+                        show: true,
+                        textStyle: {
+                            color: 'rgba(255,255,255,.6)'
+                        }
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255,255,255,.1)'
+                        }
+                    },
+                    data: resp.times
+                }, {}],
+                yAxis: [{
+                    axisLabel: {
+                        show: true,
+                        textStyle: {
+                            color: 'rgba(255,255,255,.6)'
+                        }
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255,255,255,.1)'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(255,255,255,.1)'
+                        }
+                    }
+                }],
+                series: [{
+                    name: '真实价',
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 5,
+                    showSymbol: false,
+                    lineStyle: {
+                        normal: {
+                            width: 2
+                        }
+                    },
+                    areaStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgba(24, 163, 64, 0.3)'
+                            }, {
+                                offset: 0.8,
+                                color: 'rgba(24, 163, 64, 0)'
+                            }], false),
+                            shadowColor: 'rgba(0, 0, 0, 0.1)',
+                            shadowBlur: 10
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#cdba00',
+                            borderColor: 'rgba(137,189,2,0.27)',
+                            borderWidth: 12
+                        }
+                    },
+                    data: resp.real_price
+                }, {
+                    name: '预测价',
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 5,
+                    showSymbol: false,
+                    lineStyle: {
+                        normal: {
+                            width: 2
+                        }
+                    },
+                    areaStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgba(39, 122,206, 0.3)'
+                            }, {
+                                offset: 0.8,
+                                color: 'rgba(39, 122,206, 0)'
+                            }], false),
+                            shadowColor: 'rgba(0, 0, 0, 0.1)',
+                            shadowBlur: 10
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#277ace',
+                            borderColor: 'rgba(0,136,212,0.2)',
+                            borderWidth: 12
+                        }
+                    },
+                    data: resp.predict_price
+                }]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+            window.addEventListener("resize", function () {
+                myChart.resize();
+            });
+
+        });
+        $('#echart2').html("<img style='height: 100%;width: 100%;filter:alpha(opacity=30);opacity: 0.8' src=\"{{ url_for('static',filename='images/forecast.png') }}\">")
+        //获取数据
+        $.post('/api/t_v1/get_wrap_ls', function (resp) {
+            for (var i = 0; i < resp.models.length; i++) {
+                $('#gmodel').append('<option value="'+resp.models[i]+'">'+resp.models[i]+'</option>')
+            }
+            for (var i = 0; i < resp.data.length; i++) {
+                $('#ls_my').append('<li><p><span style="width: 20%">' + resp.data[i][0] + '</span><span>' + resp.data[i][1] + '</span><span style="width: 30%">' + resp.data[i][2] + '</span><span style="width: 30%">' + resp.data[i][3] + '</span></p></li>')
+            }
+            $('.wrap,.adduser').liMarquee({
+                direction: 'up',//身上滚动
+                runshort: false,//内容不足时不滚动
+                scrollamount: 20//速度
+            });
+        });
+        //历史图
+        $.get('/api/t_v1/get_historyPrices',function (resp) {
+            // 基于准备好的dom，初始化echarts实例
+            var respall = 0;
+            var myChart = echarts.init(document.getElementById('echart3'));
+            option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        lineStyle: {
+                            color: '#57617B'
+                        }
+                    }
+                },
+                legend: {
+
+                    //icon: 'vertical',
+                    data:resp.names,
+                    //align: 'center',
+                    // right: '35%',
+                    top: '0',
+                    textStyle: {
+                        color: "#fff"
+                    },
+                    // itemWidth: 15,
+                    // itemHeight: 15,
+                    itemGap: 20,
+                },
+                grid: {
+                    left: '0',
+                    right: '20',
+                    top: '10',
+                    bottom: '20',
+                    containLabel: true
+                },
+                xAxis: [{
+                    type: 'category',
+                    boundaryGap: false,
+                    axisLabel: {
+                        show: true,
+                        textStyle: {
+                            color: 'rgba(255,255,255,.6)'
+                        }
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255,255,255,.1)'
+                        }
+                    },
+                    data: resp.times[0]
+                }, {}],
+                yAxis: [{
+                    axisLabel: {
+                        show: true,
+                        textStyle: {
+                            color: 'rgba(255,255,255,.6)'
+                        }
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255,255,255,.1)'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(255,255,255,.1)'
+                        }
+                    }
+                }],
+                series: [{
+                    name: resp.names[0],
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 5,
+                    showSymbol: false,
+                    lineStyle: {
+                        normal: {
+                            width: 2
+                        }
+                    },
+                    areaStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgba(24, 163, 64, 0.3)'
+                            }, {
+                                offset: 0.8,
+                                color: 'rgba(24, 163, 64, 0)'
+                            }], false),
+                            shadowColor: 'rgba(0, 0, 0, 0.1)',
+                            shadowBlur: 10
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#cdba00',
+                            borderColor: 'rgba(137,189,2,0.27)',
+                            borderWidth: 24
+                        }
+                    },
+                    data: resp.datas[0]
+                }, {
+                    name: resp.names[1],
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 5,
+                    showSymbol: false,
+                    lineStyle: {
+                        normal: {
+                            width: 2
+                        }
+                    },
+                    areaStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgba(39, 122,206, 0.3)'
+                            }, {
+                                offset: 0.8,
+                                color: 'rgba(39, 122,206, 0)'
+                            }], false),
+                            shadowColor: 'rgba(0, 0, 0, 0.1)',
+                            shadowBlur: 10
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#277ace',
+                            borderColor: 'rgba(0,136,212,0.2)',
+                            borderWidth: 12
+                        }
+                    },
+                    data: resp.datas[1]
+                }]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+            window.addEventListener("resize", function () {
+                myChart.resize();
+            });
+        });
+        //平均价
+        $.get('/api/t_v1/get_model_avg',{'modelname':$('#gmodel  option:selected').val()},function (resp) {
+                $('#min_price').html(resp.avg_price)
+            });
+        //最高价排行
+        get_max();
+        //最低价排行
+        get_min();
+    });
+</script>
+
+</body>
+</html>
